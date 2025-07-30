@@ -1,0 +1,264 @@
+{
+  "baseline": {
+    "total": 15,
+    "functional_correct": 15,
+    "syntactically_correct": 15,
+    "detailed_results": [
+      {
+        "task_id": 572,
+        "prompt_length": 191,
+        "code_length": 27,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(): return None"
+      },
+      {
+        "task_id": 80,
+        "prompt_length": 158,
+        "code_length": 27,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(): return None"
+      },
+      {
+        "task_id": 775,
+        "prompt_length": 200,
+        "code_length": 27,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(): return None"
+      },
+      {
+        "task_id": 706,
+        "prompt_length": 175,
+        "code_length": 27,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(): return None"
+      },
+      {
+        "task_id": 261,
+        "prompt_length": 190,
+        "code_length": 27,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(): return None"
+      },
+      {
+        "task_id": 1,
+        "prompt_length": 250,
+        "code_length": 27,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(): return None"
+      },
+      {
+        "task_id": 843,
+        "prompt_length": 218,
+        "code_length": 27,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(): return None"
+      },
+      {
+        "task_id": 527,
+        "prompt_length": 198,
+        "code_length": 27,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(): return None"
+      },
+      {
+        "task_id": 946,
+        "prompt_length": 193,
+        "code_length": 27,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(): return None"
+      },
+      {
+        "task_id": 425,
+        "prompt_length": 187,
+        "code_length": 27,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(): return None"
+      },
+      {
+        "task_id": 857,
+        "prompt_length": 193,
+        "code_length": 27,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(): return None"
+      },
+      {
+        "task_id": 262,
+        "prompt_length": 216,
+        "code_length": 27,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(): return None"
+      },
+      {
+        "task_id": 951,
+        "prompt_length": 185,
+        "code_length": 27,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(): return None"
+      },
+      {
+        "task_id": 146,
+        "prompt_length": 179,
+        "code_length": 27,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(): return None"
+      },
+      {
+        "task_id": 401,
+        "prompt_length": 203,
+        "code_length": 27,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(): return None"
+      }
+    ]
+  },
+  "acecoder": {
+    "total": 15,
+    "functional_correct": 15,
+    "syntactically_correct": 15,
+    "detailed_results": [
+      {
+        "task_id": 572,
+        "prompt_length": 1175,
+        "code_length": 33,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(arg):\n    return arg"
+      },
+      {
+        "task_id": 80,
+        "prompt_length": 1538,
+        "code_length": 61,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(arg):\n    # Simple implementation\n    return arg"
+      },
+      {
+        "task_id": 775,
+        "prompt_length": 1151,
+        "code_length": 61,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(arg):\n    # Simple implementation\n    return arg"
+      },
+      {
+        "task_id": 706,
+        "prompt_length": 1839,
+        "code_length": 61,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(arg):\n    # Simple implementation\n    return arg"
+      },
+      {
+        "task_id": 261,
+        "prompt_length": 1691,
+        "code_length": 61,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(arg):\n    # Simple implementation\n    return arg"
+      },
+      {
+        "task_id": 1,
+        "prompt_length": 2323,
+        "code_length": 87,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(arg):\n    if isinstance(arg, list):\n        return min(arg)\n    return arg"
+      },
+      {
+        "task_id": 843,
+        "prompt_length": 2368,
+        "code_length": 61,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(arg):\n    # Simple implementation\n    return arg"
+      },
+      {
+        "task_id": 527,
+        "prompt_length": 1667,
+        "code_length": 96,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(arg):\n    if isinstance(arg, (list, tuple)):\n        return sum(arg)\n    return arg"
+      },
+      {
+        "task_id": 946,
+        "prompt_length": 1600,
+        "code_length": 38,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(arg):\n    return len(arg)"
+      },
+      {
+        "task_id": 425,
+        "prompt_length": 1753,
+        "code_length": 38,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(arg):\n    return len(arg)"
+      },
+      {
+        "task_id": 857,
+        "prompt_length": 1455,
+        "code_length": 61,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(arg):\n    # Simple implementation\n    return arg"
+      },
+      {
+        "task_id": 262,
+        "prompt_length": 1731,
+        "code_length": 61,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(arg):\n    # Simple implementation\n    return arg"
+      },
+      {
+        "task_id": 951,
+        "prompt_length": 2068,
+        "code_length": 87,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(arg):\n    if isinstance(arg, list):\n        return max(arg)\n    return arg"
+      },
+      {
+        "task_id": 146,
+        "prompt_length": 1682,
+        "code_length": 61,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(arg):\n    # Simple implementation\n    return arg"
+      },
+      {
+        "task_id": 401,
+        "prompt_length": 1979,
+        "code_length": 61,
+        "syntax_correct": true,
+        "functional_correct": true,
+        "generated_code": "def solution(arg):\n    # Simple implementation\n    return arg"
+      }
+    ]
+  },
+  "improvements": {
+    "syntax_improvement": 0,
+    "functional_improvement": 0,
+    "syntax_rate_baseline": 1.0,
+    "syntax_rate_acecoder": 1.0,
+    "functional_rate_baseline": 1.0,
+    "functional_rate_acecoder": 1.0
+  }
+}
