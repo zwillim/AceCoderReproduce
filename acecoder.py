@@ -74,6 +74,81 @@ class BM25Retriever:
         return top_indices
 
 
+class LuceneRetriever:
+    """Lucene-based retriever implemented via Pyserini.
+
+    This class requires the `pyserini` package (https://github.com/castorini/pyserini).
+    It will automatically build a temporary Lucene index for the provided corpus and
+    perform BM25 retrieval using Lucene's default scorer.
+    """
+
+    def __init__(self, index_dir: str = "lucene_index"):
+        self.index_dir = index_dir
+        # The Pyserini imports are deferred so that the package is only required
+        # when this retriever is actually used.
+        try:
+            from pyserini.search import SimpleSearcher  # noqa: F401
+            from pyserini.index import SimpleIndexer  # noqa: F401
+        except ImportError as exc:
+            raise ImportError(
+                "LuceneRetriever requires the `pyserini` package. Install it via\n"
+                "  pip install pyserini\n"
+                "More info: https://github.com/castorini/pyserini"
+            ) from exc
+
+        self._searcher = None  # Will be initialised after `fit`.
+
+    # ------------------------------------------------------------------
+    # Public interface expected by AceCoder (mirrors BM25Retriever)
+    # ------------------------------------------------------------------
+    def fit(self, corpus: List[str]):
+        """Build a Lucene index for the given corpus.
+
+        The corpus is converted to the JSONL format required by Pyserini's
+        SimpleIndexer. All files are written under `<index_dir>_docs/`. If an
+        index already exists, it will be reused to speed up subsequent runs.
+        """
+        import os
+        import json
+        import shutil
+        import tempfile
+        from pathlib import Path
+        from pyserini.index import SimpleIndexer
+        from pyserini.search import SimpleSearcher
+
+        docs_dir = f"{self.index_dir}_docs"
+
+        # Re-index only if necessary (i.e., docs directory does not exist).
+        if not os.path.isdir(self.index_dir):
+            # (Re)create docs directory.
+            if os.path.exists(docs_dir):
+                shutil.rmtree(docs_dir)
+            os.makedirs(docs_dir, exist_ok=True)
+
+            # Write JSONL documents (one file per doc so we can parallelise later).
+            for i, doc in enumerate(corpus):
+                json_path = os.path.join(docs_dir, f"doc_{i}.json")
+                with open(json_path, "w", encoding="utf-8") as fp:
+                    json.dump({"id": str(i), "contents": doc}, fp, ensure_ascii=False)
+
+            # Build Lucene index.
+            indexer = SimpleIndexer(docs_dir, self.index_dir)
+            indexer.setStorePositions(False)
+            indexer.setStoreDocvectors(False)
+            indexer.setStoreRaw(False)
+            indexer.build()
+
+        # Create the searcher (BM25 by default).
+        self._searcher = SimpleSearcher(self.index_dir)
+
+    def retrieve(self, query: str, top_k: int = 20) -> List[int]:
+        """Return indices of top-k most similar documents."""
+        if self._searcher is None:
+            raise RuntimeError("LuceneRetriever has not been fitted – call `fit()` first.")
+        hits = self._searcher.search(query, k=top_k)
+        return [int(hit.docid) for hit in hits]
+
+
 class ExampleSelector:
     """Selector to filter out redundant programs and select informative examples"""
     
@@ -178,17 +253,27 @@ class TestCaseAnalyzer:
 class AceCoder:
     """Main AceCoder implementation"""
     
-    def __init__(self, dataset_path: str):
+    def __init__(self, dataset_path: str, *, use_lucene: bool = True, lucene_index_dir: str = "lucene_index"):
         self.dataset_path = dataset_path
-        self.dataset = []
-        self.retriever = BM25Retriever()
+
+        # Choose retriever implementation.
+        if use_lucene:
+            try:
+                self.retriever = LuceneRetriever(index_dir=lucene_index_dir)
+                print("Using LuceneRetriever (Pyserini) for example retrieval")
+            except ImportError as e:
+                print(str(e))
+                print("Falling back to internal BM25Retriever.\n")
+                self.retriever = BM25Retriever()
+        else:
+            self.retriever = BM25Retriever()
+
         self.selector = ExampleSelector()
         self.analyzer = TestCaseAnalyzer()
-        
-        # Load dataset
+        self.dataset: List[Dict[str, Any]] = []
+
+        # Load dataset and build retrieval corpus.
         self.load_dataset()
-        
-        # Prepare retrieval corpus
         self.prepare_retrieval_corpus()
     
     def load_dataset(self):
