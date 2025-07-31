@@ -11,9 +11,11 @@ AceCoder addresses two key challenges in code generation:
 ## 🔧 Key Components
 
 ### 1. Example Retrieval
-- **BM25-based retrieval system** for finding similar programs
+- **Lucene-based retrieval system** for finding similar programs (as mentioned in the paper)
+- Uses Pyserini as Python interface to Lucene
 - Retrieves top-k most relevant examples from the training corpus
 - Uses natural language requirements as queries
+- Falls back to internal BM25 implementation if Lucene is not available
 
 ### 2. Example Selection  
 - **Redundancy filtering** using n-gram overlap analysis
@@ -84,10 +86,12 @@ This will evaluate AceCoder against baseline methods on MBPP dataset samples.
 
 ## 🔬 Technical Details
 
-### BM25 Retrieval
-- **k1 = 1.5, b = 0.75** (standard BM25 parameters)
-- Calculates TF-IDF based similarity scores
+### Lucene Retrieval
+- **Uses Lucene engine** via Pyserini (as specified in the paper)
+- **BM25 scoring** with Lucene's default parameters
+- **Automatic index building** for the training corpus
 - Retrieves top-20 similar programs by default
+- **Fallback option**: Internal BM25 implementation if Lucene is unavailable
 
 ### Example Selection Algorithm
 - Extracts 4-grams from requirements
@@ -104,7 +108,7 @@ This will evaluate AceCoder against baseline methods on MBPP dataset samples.
 
 ✅ **Paper-Consistent Implementation**
 - Follows the exact methodology described in the paper
-- Uses BM25 for retrieval as specified
+- Uses Lucene for retrieval as specified (via Pyserini)
 - Implements n-gram based selection with decay
 - Test cases as preliminaries
 
@@ -163,7 +167,8 @@ This implementation maintains high fidelity to the original paper:
 ## 🛠 Requirements
 
 - Python 3.7+
-- No external dependencies (uses pure Python implementation)
+- **Optional**: Pyserini for Lucene support (`pip install pyserini`)
+- Falls back to pure Python implementation if Pyserini is not available
 - MBPP dataset (included)
 
 ## 📈 Potential Improvements
