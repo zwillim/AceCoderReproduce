@@ -1,0 +1,81 @@
+{
+  "evaluation_summary": {
+    "total_samples": 2,
+    "methods_evaluated": [
+      "few_shot_new"
+    ],
+    "results": {
+      "few_shot_new": 0
+    },
+    "accuracies": {
+      "few_shot_new": 0.0
+    }
+  },
+  "detailed_results": {
+    "few_shot_new": [
+      {
+        "task_name": "直播弹幕数据",
+        "test_set_name": "channel_tran_test_set_2",
+        "query": "barid: Bullet Chat ID:string;Bullet Chat ID,Understood. I will provide precise, elegant translations between Chinese and English, strictly adhering to the principles of faithfulness, expressiveness, and aesthetic excellence. I will focus solely on delivering the translated content without additional commentary or explanations. Please proceed with the text you'd like me to translate.\nrmid: Room number:string;Barrage room number,Understood. I will provide precise, elegant translations between Chinese and English, strictly adhering to the principles of faithfulness, expressiveness, and aesthetic excellence. I will focus solely on delivering the translated content without additional commentary or explanations. Please proceed with the text you'd like me to translate.\npbarid: Parent Node ID:string;If the barrage has a parent-child node structure, fill in the barrage ID of the parent node; otherwise, fill in the room number ID.,Understood. I will provide precise, elegant translations between Chinese and English, strictly adhering to the principles of faithfulness, expressiveness, and aesthetic excellence. I will focus solely on delivering the translated content without additional commentary or explanations. Please proceed with the text you'd like me to translate.\ncontent: Bullet screen comments:string;Bullet screen comments,Understood. I will provide precise, elegant translations between Chinese and English, strictly adhering to the principles of faithfulness, expressiveness, and aesthetic excellence. I will focus solely on delivering the translated content without additional commentary or explanations. Please proceed with the text you'd like me to translate.\npublishtime: Bullet comment posting time:string;Bullet comment posting time,yyyyMMddHHmmss format\ntype: Types of bullet comments:string;0 represents unknown, 1 represents barrage, and 2 represents announcement.,Understood. I will provide precise, elegant translations between Chinese and English, strictly adhering to the principles of faithfulness, expressiveness, and aesthetic excellence. I will focus solely on delivering the translated content without additional commentary or explanations. Please proceed with the text you'd like me to translate.\nuserid: Account ID:string;Account ID,Understood. I will provide precise, elegant translations between Chinese and English, strictly adhering to the principles of faithfulness, expressiveness, and aesthetic excellence. I will focus solely on delivering the translated content without additional commentary or explanations. Please proceed with the text you'd like me to translate.\nusername: account nickname:string;account nickname,Understood. I will provide precise, elegant translations between Chinese and English, strictly adhering to the principles of faithfulness, expressiveness, and aesthetic excellence. I will focus solely on delivering the translated content without additional commentary or explanations. Please proceed with the text you'd like me to translate.\nstate: Barrage status:string;Post fill in 1, user deletion fill in 2, system invisible fill in 3, system deletion fill in 4.,Understood. I will provide precise, elegant translations between Chinese and English, strictly adhering to the principles of faithfulness, expressiveness, and aesthetic excellence. I will focus solely on delivering the translated content without additional commentary or explanations. Please proceed with the text you'd like me to translate.\nsnapshottime: Data snapshot generation time:string;Data snapshot generation time,yyyyMMddHHmmss format",
+        "generated_code": "def generate_mapping():\n    return {\n        'g_ch_key': '=$src.barid',\n        'm_parent_id': '=$src.pbarid',\n        'm_content': '=$src.content',\n        'u_g_ch_key': 'asp=util::mapping($sys.key_map,$src.key)\\n=string::concat($asp,$src.userid)',\n        'u_name': '=$src.username',\n        'g_asp': '=util::mapping($sys.key_map,$src.key)',\n        'm_gid': '=$src.barid',\n        'm_status': '=type::strToInt($src.state)',\n        'm_year': '=time::getElements(time::parseDate(\"yyyyMMddHHmmss\",$src.publishtime))[year]',\n        'm_day': '=time::getElements(time::parseDate(\"yyyyMMddHHmmss\",$src.publishtime))[day]',\n        'm_month': '=time::getElements(time::parseDate(\"yyyyMMddHHmmss\",$src.publishtime))[month]',\n        'm_hour': '=time::getElements(time::parseDate(\"yyyyMMddHHmmss\",$src.publishtime))[hour]',\n        'm_publish_time': '=time::parseDate(\"yyyyMMddHHmmss\",$src.publishtime)',\n        'm_snapshot_time': '=time::parseDate(\"yyyyMMddHHmmss\",$src.snapshottime)',\n        'm_type': '=type::strToInt($src.type)'\n    }",
+        "expected_code": {
+          "g_ch_key": "=codex::base64Decode($src.barid)",
+          "m_parent_id": "=codex::base64Decode($src.pbarid)",
+          "m_content": "=codex::base64Decode($src.content)",
+          "u_name": "=codex::base64Decode($src.username)",
+          "g_asp": "=util::mapping($sys.key_map,$src.key)",
+          "u_g_ch_key": "asp=util::mapping($sys.key_map,$src.key)\n=string::concat($asp,codex::base64Decode($src.userid))",
+          "m_gid": "=codex::base64Decode($src.barid)",
+          "m_dedup": "asp=util::mapping($sys.key_map,$src.key)\ngasp=string::addSuffix(\"_\",$asp)\nrmid=string::concat($gasp,$src.rmid)\nresult=string::concat(string::concat($src.barid,$rmid),$src.snapshottime)\n=dataDeduplication::strCheck(\"10.160.110.16\",6379,\"\",0,\"\",86400,\"true\",$result)",
+          "m_root_g_ch_key": "asp=util::mapping($sys.key_map,$src.key)\ngasp=string::addSuffix(\"_\",$asp)\n=string::concat($gasp,codex::base64Decode($src.rmid))",
+          "m_type": "=type::strToInt($src.type)",
+          "m_status": "=type::strToInt($src.state)",
+          "m_year": "=time::getElements(time::parseDate(\"yyyyMMddHHmmss\",$src.publishtime))[year]",
+          "m_month": "=time::getElements(time::parseDate(\"yyyyMMddHHmmss\",$src.publishtime))[month]",
+          "m_hour": "=time::getElements(time::parseDate(\"yyyyMMddHHmmss\",$src.publishtime))[hour]",
+          "m_day": "=time::getElements(time::parseDate(\"yyyyMMddHHmmss\",$src.publishtime))[day]",
+          "m_snapshot_time": "=time::parseDate(\"yyyyMMddHHmmss\",$src.snapshottime)",
+          "m_publish_time": "=time::parseDate(\"yyyyMMddHHmmss\",$src.publishtime)",
+          "m_gather_time": "=$src.gt",
+          "m_insert_time": "=$src.gt"
+        },
+        "is_correct": false,
+        "method": "few_shot_new"
+      },
+      {
+        "task_name": "自媒体回答交互数据",
+        "test_set_name": "channel_tran_test_set_0",
+        "query": "DOMAIN: website domain name:STRING;website domain name,Understood. I will provide precise, elegant translations between Chinese and English, strictly adhering to the principles of faithfulness, expressiveness, and aesthetic excellence. I will focus solely on delivering the translated content without additional commentary or explanations. Please proceed with the text you'd like me to translate.\nCHANNEL: Publish a letter of faith:STRING;The channel from which the response is published. Enter 1 for PC web browser, 2 for mobile client, and 3 for mobile browser.,Understood. I will provide precise, elegant translations between Chinese and English, strictly adhering to the principles of faithfulness, expressiveness, and aesthetic excellence. I will focus solely on delivering the translated content without additional commentary or explanations. Please proceed with the text you'd like me to translate.\nARTICLEID: Answer ID:STRING;The unique identifier of the response, where updates and comments are all linked to this field. If the URL of the response is used as the unique identifier, then enter the URL.,Base64 encoding, the entire field\nPARTICLEID: Problem ID:STRING;Answer the corresponding question ID.,Base64 encoding, the entire field\nPUBLISHTIME: Publication time:STRING;Release time of the message.,yyyyMMddHHmmss format\nPVNUM: reading volume:LONG;reading volume,Understood. I will provide precise, elegant translations between Chinese and English, strictly adhering to the principles of faithfulness, expressiveness, and aesthetic excellence. I will focus solely on delivering the translated content without additional commentary or explanations. Please proceed with the text you'd like me to translate.\nREPLYNUM: comment count:LONG;comment count,Understood. I will provide precise, elegant translations between Chinese and English, strictly adhering to the principles of faithfulness, expressiveness, and aesthetic excellence. I will focus solely on delivering the translated content without additional commentary or explanations. Please proceed with the text you'd like me to translate.\nSHARENUM: Shares/Reposts:LONG;Shares or reposts,Understood. I will provide precise, elegant translations between Chinese and English, strictly adhering to the principles of faithfulness, expressiveness, and aesthetic excellence. I will focus solely on delivering the translated content without additional commentary or explanations. Please proceed with the text you'd like me to translate.\nINSTRESTNUM: Collection count:LONG;The number of users who have followed or favorited the article.,Understood. I will provide precise, elegant translations between Chinese and English, strictly adhering to the principles of faithfulness, expressiveness, and aesthetic excellence. I will focus solely on delivering the translated content without additional commentary or explanations. Please proceed with the text you'd like me to translate.\nREPORTNUM: number of reports:LONG;The number of times the manuscript was reported by users,Understood. I will provide precise, elegant translations between Chinese and English, strictly adhering to the principles of faithfulness, expressiveness, and aesthetic excellence. I will focus solely on delivering the translated content without additional commentary or explanations. Please proceed with the text you'd like me to translate.\nSUPPORTNUM: support volume:LONG;The number of users supporting the response.,Understood. I will provide precise, elegant translations between Chinese and English, strictly adhering to the principles of faithfulness, expressiveness, and aesthetic excellence. I will focus solely on delivering the translated content without additional commentary or explanations. Please proceed with the text you'd like me to translate.\nOPPOSENUM: anti-quantification:LONG;The number of users who hold opposing views to the response.,Understood. I will provide precise, elegant translations between Chinese and English, strictly adhering to the principles of faithfulness, expressiveness, and aesthetic excellence. I will focus solely on delivering the translated content without additional commentary or explanations. Please proceed with the text you'd like me to translate.\nSHAREINFO: Number of shares/reposts across different platforms:STRUCTS;If the response is shared across different platforms, push the repost or share volume for each respective platform.,Fill in according to Note 1 of Table 12.\nSNAPSHOTTIME: Data snapshot generation time:STRING;The time when the snapshot of this data was generated,yyyyMMddHHmmss format",
+        "generated_code": "def transform_data(src, sys):\n    result = {}\n    result['g_channel'] = src['CHANNEL']\n    result['m_gid'] = f\"=codex::base64Decode({src['ARTICLEID']})\"\n    result['m_root_gid'] = f\"=codex::base64Decode({src['PARTICLEID']})\"\n    result['m_publish_time'] = f\"=time::parseDate(\\\"yyyyMMddHHmmss\\\",{src['PUBLISHTIME']})\"\n    result['m_snapshot_time'] = f\"=time::parseDate(\\\"yyyyMMddHHmmss\\\",{src['SNAPSHOTTIME']})\"\n    result['m_read_count'] = src['PVNUM']\n    result['m_comment_count'] = src['REPLYNUM']\n    result['m_share_count'] = src['SHARENUM']\n    result['m_collect_count'] = src['INSTRESTNUM']\n    result['m_report_count'] = src['REPORTNUM']\n    result['m_support_count'] = src['SUPPORTNUM']\n    result['m_oppose_count'] = src['OPPOSENUM']\n    result['m_year'] = f\"=time::getElements(time::parseDate(\\\"yyyyMMddHHmmss\\\",{src['PUBLISHTIME']}))[year]\"\n    result['m_month'] = f\"=time::getElements(time::parseDate(\\\"yyyyMMddHHmmss\\\",{src['PUBLISHTIME']}))[month]\"\n    result['m_day'] = f\"=time::getElements(time::parseDate(\\\"yyyyMMddHHmmss\\\",{src['PUBLISHTIME']}))[day]\"\n    result['m_hour'] = f\"=time::getElements(time::parseDate(\\\"yyyyMMddHHmmss\\\",{src['PUBLISHTIME']}))[hour]\"\n    result['g_asp'] = f\"=util::mapping({sys['key_map']},{src['DOMAIN']})\"\n    if 'SHAREINFO' in src and src['SHAREINFO']:\n        result['ma_share_info'] = []\n        for share_item in src['SHAREINFO']:\n            platform = share_item.get('platform', '')\n            count = share_item.get('count', 0)\n            result['ma_share_info'].append({\n                'platform': platform,\n                'count': count\n            })\n    return result",
+        "expected_code": {
+          "m_url_domain": "=$src.domain",
+          "m_url": "=codex::base64Decode($src.originurl)",
+          "g_channel": "=$src.channel",
+          "g_ch_key": "=codex::base64Decode($src.articleid)",
+          "m_share_info": "=$src.shareinfo",
+          "m_root_g_ch_key": "=codex::base64Decode($src.particleid)",
+          "m_forward_cnt": "=type::longToInt($src.sharenum)",
+          "m_reply_cnt": "=type::longToInt($src.replynum)",
+          "u_favourite_cnt": "=type::longToInt($src.instrestnum)",
+          "m_report_cnt": "=type::longToInt($src.reportnum)",
+          "m_like_cnt": "=type::longToInt($src.supportnum)",
+          "m_trampled_cnt": "=type::longToInt($src.opposenum)",
+          "m_read_cnt": "=type::longToInt($src.pvnum)",
+          "m_update_time": "=$src.gt",
+          "m_snapshot_time": "=time::parseDate(\"yyyyMMddHHmmss\",$src.snapshottime)"
+        },
+        "is_correct": false,
+        "method": "few_shot_new"
+      }
+    ]
+  },
+  "config": {
+    "dataset_source": "split_sets",
+    "max_samples": 2,
+    "methods_to_run": [
+      "few_shot_new"
+    ],
+    "use_real_llm": true,
+    "model_name": "deepseek-reasoner"
+  }
+}

@@ -1,0 +1,446 @@
+{
+  "evaluation_summary": {
+    "total_samples": 10,
+    "methods_evaluated": [
+      "acecoder",
+      "zero_shot",
+      "few_shot",
+      "cot"
+    ],
+    "results": {
+      "acecoder": 7,
+      "zero_shot": 1,
+      "few_shot": 2,
+      "cot": 1
+    },
+    "accuracies": {
+      "acecoder": 0.7,
+      "zero_shot": 0.1,
+      "few_shot": 0.2,
+      "cot": 0.1
+    }
+  },
+  "detailed_results": {
+    "acecoder": [
+      {
+        "task_id": 625,
+        "method": "acecoder",
+        "query": "Write a python function to interchange the first and last element in a given list.",
+        "prompt_length": 1250,
+        "response_length": 171,
+        "code_length": 171,
+        "is_correct": true,
+        "generated_code": "def swap_List(newList): \n    if len(newList) <= 1:\n        return newList\n    temp = newList[0] \n    newList[0] = newList[-1] \n    newList[-1] = temp   \n    return newList"
+      },
+      {
+        "task_id": 103,
+        "method": "acecoder",
+        "query": "Write a function to find the Eulerian number a(n, m).",
+        "prompt_length": 1592,
+        "response_length": 168,
+        "code_length": 168,
+        "is_correct": true,
+        "generated_code": "def eulerian_num(n, m):\n\tif (m >= n or n == 0): \n\t\treturn 0 \n\tif (m == 0): \n\t\treturn 1 \n\treturn ((n - m) * eulerian_num(n - 1, m - 1) +(m + 1) * eulerian_num(n - 1, m))"
+      },
+      {
+        "task_id": 18,
+        "method": "acecoder",
+        "query": "Write a function to remove characters from the first string which are present in the second string.",
+        "prompt_length": 2253,
+        "response_length": 522,
+        "code_length": 522,
+        "is_correct": true,
+        "generated_code": "def remove_dirty_chars(string, second_string):\n    count = [0] * 256\n    for i in second_string:\n        count[ord(i)] += 1\n    ip_ind = 0\n    res_ind = 0\n    temp = ''\n    str_list = []\n    for x in ..."
+      },
+      {
+        "task_id": 757,
+        "method": "acecoder",
+        "query": "Write a function to count the pairs of reverse strings in the given string list. https://www.geeksfo",
+        "prompt_length": 1791,
+        "response_length": 216,
+        "code_length": 216,
+        "is_correct": false,
+        "generated_code": "def count_reverse_pairs(test_list):\n    res = sum([1 for idx in range(0, len(test_list)) for idxn in range(idx, len(test_list)) if test_list[idxn] == str(''.join(list(reversed(test_list[idx]))))])\n   ..."
+      },
+      {
+        "task_id": 267,
+        "method": "acecoder",
+        "query": "Write a python function that takes in an integer n and returns the sum of the squares of the first n",
+        "prompt_length": 1045,
+        "response_length": 60,
+        "code_length": 60,
+        "is_correct": false,
+        "generated_code": "def sum_of_squares_of_odds(n):\n    return int(n*(4*n*n-1)/3)"
+      },
+      {
+        "task_id": 249,
+        "method": "acecoder",
+        "query": "Write a function to find the intersection of two arrays.",
+        "prompt_length": 1922,
+        "response_length": 134,
+        "code_length": 134,
+        "is_correct": true,
+        "generated_code": "def intersection_array(array_nums1, array_nums2):\n    result = list(filter(lambda x: x in array_nums1, array_nums2))\n    return result"
+      },
+      {
+        "task_id": 235,
+        "method": "acecoder",
+        "query": "Write a python function to set all even bits of a given number.",
+        "prompt_length": 1375,
+        "response_length": 204,
+        "code_length": 204,
+        "is_correct": true,
+        "generated_code": "def even_bit_set_number(n):\n    count = 0\n    res = 0\n    temp = n\n    while temp > 0:\n        if count % 2 == 1:\n            res |= (1 << count)\n        count += 1\n        temp >>= 1\n    return (n | ..."
+      },
+      {
+        "task_id": 123,
+        "method": "acecoder",
+        "query": "Write a function to sum all amicable numbers from 1 to a specified number.",
+        "prompt_length": 2298,
+        "response_length": 585,
+        "code_length": 585,
+        "is_correct": true,
+        "generated_code": "def amicable_numbers_sum(limit):\n    if not isinstance(limit, int):\n        return \"Input is not an integer!\"\n    if limit < 1:\n        return \"Input must be bigger than 0!\"\n    amicables = set()\n    ..."
+      },
+      {
+        "task_id": 755,
+        "method": "acecoder",
+        "query": "Write a function to find the second smallest number in a list.",
+        "prompt_length": 1649,
+        "response_length": 209,
+        "code_length": 209,
+        "is_correct": true,
+        "generated_code": "def second_smallest(lst):\n    if len(lst) < 2:\n        return None\n    unique_numbers = list(set(lst))\n    if len(unique_numbers) < 2:\n        return None\n    unique_numbers.sort()\n    return unique_n..."
+      },
+      {
+        "task_id": 98,
+        "method": "acecoder",
+        "query": "Write a function to multiply all the numbers in a list and divide with the length of the list.",
+        "prompt_length": 1306,
+        "response_length": 117,
+        "code_length": 117,
+        "is_correct": false,
+        "generated_code": "def multiply_num(numbers):  \n    total = 1\n    for x in numbers:\n        total *= x  \n    return total / len(numbers)"
+      }
+    ],
+    "zero_shot": [
+      {
+        "task_id": 625,
+        "method": "zero_shot",
+        "query": "Write a python function to interchange the first and last element in a given list.",
+        "prompt_length": 217,
+        "response_length": 125,
+        "code_length": 125,
+        "is_correct": false,
+        "generated_code": "def interchange_first_last(lst):\n    if len(lst) < 2:\n        return lst\n    lst[0], lst[-1] = lst[-1], lst[0]\n    return lst"
+      },
+      {
+        "task_id": 103,
+        "method": "zero_shot",
+        "query": "Write a function to find the Eulerian number a(n, m).",
+        "prompt_length": 188,
+        "response_length": 490,
+        "code_length": 399,
+        "is_correct": false,
+        "generated_code": "def eulerian_number(n, m):\n    if m >= n or m < 0:\n        return 0\n    if n == 0:\n        return 1\n    dp = [[0 for _ in range(m + 1)] for _ in range(n + 1)]\n    for i in range(1, n + 1):\n        for..."
+      },
+      {
+        "task_id": 18,
+        "method": "zero_shot",
+        "query": "Write a function to remove characters from the first string which are present in the second string.",
+        "prompt_length": 234,
+        "response_length": 178,
+        "code_length": 178,
+        "is_correct": false,
+        "generated_code": "def remove_chars(first_string, second_string):\n    second_set = set(second_string)\n    result = ''.join(char for char in first_string if char not in second_set)\n    return result"
+      },
+      {
+        "task_id": 757,
+        "method": "zero_shot",
+        "query": "Write a function to count the pairs of reverse strings in the given string list. https://www.geeksfo",
+        "prompt_length": 299,
+        "response_length": 231,
+        "code_length": 231,
+        "is_correct": true,
+        "generated_code": "def count_reverse_pairs(strings):\n    count = 0\n    seen = set()\n    for string in strings:\n        reversed_string = string[::-1]\n        if reversed_string in seen:\n            count += 1\n        se..."
+      },
+      {
+        "task_id": 267,
+        "method": "zero_shot",
+        "query": "Write a python function that takes in an integer n and returns the sum of the squares of the first n",
+        "prompt_length": 256,
+        "response_length": 121,
+        "code_length": 121,
+        "is_correct": false,
+        "generated_code": "def sum_of_squares_of_odds(n):\n    total = 0\n    for i in range(1, 2 * n + 1, 2):\n        total += i * i\n    return total"
+      },
+      {
+        "task_id": 249,
+        "method": "zero_shot",
+        "query": "Write a function to find the intersection of two arrays.",
+        "prompt_length": 191,
+        "response_length": 104,
+        "code_length": 104,
+        "is_correct": false,
+        "generated_code": "def intersection(nums1, nums2):\n    set1 = set(nums1)\n    set2 = set(nums2)\n    return list(set1 & set2)"
+      },
+      {
+        "task_id": 235,
+        "method": "zero_shot",
+        "query": "Write a python function to set all even bits of a given number.",
+        "prompt_length": 198,
+        "response_length": 521,
+        "code_length": 259,
+        "is_correct": false,
+        "generated_code": "def set_even_bits(n):\n    mask = 0\n    bit_position = 0\n    temp = n\n    while temp > 0:\n        if bit_position % 2 == 0:\n            mask |= (1 << bit_position)\n        bit_position += 1\n        tem..."
+      },
+      {
+        "task_id": 123,
+        "method": "zero_shot",
+        "query": "Write a function to sum all amicable numbers from 1 to a specified number.",
+        "prompt_length": 209,
+        "response_length": 563,
+        "code_length": 563,
+        "is_correct": false,
+        "generated_code": "def sum_amicable_numbers(n):\n    def sum_of_divisors(num):\n        if num == 1:\n            return 1\n        divisor_sum = 1\n        for i in range(2, int(num**0.5) + 1):\n            if num % i == 0:\n..."
+      },
+      {
+        "task_id": 755,
+        "method": "zero_shot",
+        "query": "Write a function to find the second smallest number in a list.",
+        "prompt_length": 197,
+        "response_length": 226,
+        "code_length": 226,
+        "is_correct": false,
+        "generated_code": "def find_second_smallest(numbers):\n    if len(numbers) < 2:\n        return None\n    unique_numbers = list(set(numbers))\n    if len(unique_numbers) < 2:\n        return None\n    unique_numbers.sort()\n  ..."
+      },
+      {
+        "task_id": 98,
+        "method": "zero_shot",
+        "query": "Write a function to multiply all the numbers in a list and divide with the length of the list.",
+        "prompt_length": 229,
+        "response_length": 173,
+        "code_length": 173,
+        "is_correct": false,
+        "generated_code": "def multiply_and_divide(numbers):\n    if len(numbers) == 0:\n        return 0\n    product = 1\n    for num in numbers:\n        product *= num\n    return product / len(numbers)"
+      }
+    ],
+    "few_shot": [
+      {
+        "task_id": 625,
+        "method": "few_shot",
+        "query": "Write a python function to interchange the first and last element in a given list.",
+        "prompt_length": 909,
+        "response_length": 125,
+        "code_length": 125,
+        "is_correct": false,
+        "generated_code": "def interchange_first_last(lst):\n    if len(lst) < 2:\n        return lst\n    lst[0], lst[-1] = lst[-1], lst[0]\n    return lst"
+      },
+      {
+        "task_id": 103,
+        "method": "few_shot",
+        "query": "Write a function to find the Eulerian number a(n, m).",
+        "prompt_length": 880,
+        "response_length": 435,
+        "code_length": 435,
+        "is_correct": false,
+        "generated_code": "def eulerian_number(n, m):\n    if m >= n or m < 0:\n        return 0\n    if n == 0:\n        return 1\n    eulerian = [[0 for _ in range(m + 1)] for _ in range(n + 1)]\n    for i in range(1, n + 1):\n     ..."
+      },
+      {
+        "task_id": 18,
+        "method": "few_shot",
+        "query": "Write a function to remove characters from the first string which are present in the second string.",
+        "prompt_length": 926,
+        "response_length": 113,
+        "code_length": 113,
+        "is_correct": false,
+        "generated_code": "def remove_chars(str1, str2):\n    result = ''.join([char for char in str1 if char not in str2])\n    return result"
+      },
+      {
+        "task_id": 757,
+        "method": "few_shot",
+        "query": "Write a function to count the pairs of reverse strings in the given string list. https://www.geeksfo",
+        "prompt_length": 991,
+        "response_length": 181,
+        "code_length": 181,
+        "is_correct": true,
+        "generated_code": "def count_reverse_pairs(strings):\r\n    count = 0\r\n    seen = set()\r\n    for s in strings:\r\n        if s[::-1] in seen:\r\n            count += 1\r\n        seen.add(s)\r\n    return count"
+      },
+      {
+        "task_id": 267,
+        "method": "few_shot",
+        "query": "Write a python function that takes in an integer n and returns the sum of the squares of the first n",
+        "prompt_length": 948,
+        "response_length": 118,
+        "code_length": 118,
+        "is_correct": false,
+        "generated_code": "def sum_of_squares_of_odds(n):\n    total = 0\n    for i in range(1, 2 * n, 2):\n        total += i ** 2\n    return total"
+      },
+      {
+        "task_id": 249,
+        "method": "few_shot",
+        "query": "Write a function to find the intersection of two arrays.",
+        "prompt_length": 883,
+        "response_length": 72,
+        "code_length": 72,
+        "is_correct": false,
+        "generated_code": "def intersection(nums1, nums2):\n    return list(set(nums1) & set(nums2))"
+      },
+      {
+        "task_id": 235,
+        "method": "few_shot",
+        "query": "Write a python function to set all even bits of a given number.",
+        "prompt_length": 890,
+        "response_length": 210,
+        "code_length": 210,
+        "is_correct": false,
+        "generated_code": "def set_even_bits(n):\n    result = n\n    bit_position = 0\n    while n > 0:\n        if bit_position % 2 == 0:\n            result |= (1 << bit_position)\n        n >>= 1\n        bit_position += 1\n    ret..."
+      },
+      {
+        "task_id": 123,
+        "method": "few_shot",
+        "query": "Write a function to sum all amicable numbers from 1 to a specified number.",
+        "prompt_length": 901,
+        "response_length": 517,
+        "code_length": 517,
+        "is_correct": false,
+        "generated_code": "def sum_amicable_numbers(n):\n    def sum_of_divisors(num):\n        divisors_sum = 1\n        for i in range(2, int(num**0.5) + 1):\n            if num % i == 0:\n                divisors_sum += i\n       ..."
+      },
+      {
+        "task_id": 755,
+        "method": "few_shot",
+        "query": "Write a function to find the second smallest number in a list.",
+        "prompt_length": 889,
+        "response_length": 221,
+        "code_length": 221,
+        "is_correct": true,
+        "generated_code": "def second_smallest(numbers):\n    if len(numbers) < 2:\n        return None\n    unique_numbers = list(set(numbers))\n    if len(unique_numbers) < 2:\n        return None\n    unique_numbers.sort()\n    ret..."
+      },
+      {
+        "task_id": 98,
+        "method": "few_shot",
+        "query": "Write a function to multiply all the numbers in a list and divide with the length of the list.",
+        "prompt_length": 921,
+        "response_length": 173,
+        "code_length": 173,
+        "is_correct": false,
+        "generated_code": "def multiply_and_divide(numbers):\n    if len(numbers) == 0:\n        return 0\n    product = 1\n    for num in numbers:\n        product *= num\n    return product / len(numbers)"
+      }
+    ],
+    "cot": [
+      {
+        "task_id": 625,
+        "method": "cot",
+        "query": "Write a python function to interchange the first and last element in a given list.",
+        "prompt_length": 757,
+        "response_length": 126,
+        "code_length": 126,
+        "is_correct": false,
+        "generated_code": "def interchange_first_last(lst):\n    if len(lst) <= 1:\n        return lst\n    lst[0], lst[-1] = lst[-1], lst[0]\n    return lst"
+      },
+      {
+        "task_id": 103,
+        "method": "cot",
+        "query": "Write a function to find the Eulerian number a(n, m).",
+        "prompt_length": 728,
+        "response_length": 404,
+        "code_length": 404,
+        "is_correct": false,
+        "generated_code": "def eulerian_number(n, m):\n    if m >= n or m < 0:\n        return 0\n    if n == 0:\n        return 1\n    dp = [[0] * (m + 1) for _ in range(n + 1)]\n    dp[0][0] = 1\n    for i in range(1, n + 1):\n      ..."
+      },
+      {
+        "task_id": 18,
+        "method": "cot",
+        "query": "Write a function to remove characters from the first string which are present in the second string.",
+        "prompt_length": 774,
+        "response_length": 178,
+        "code_length": 178,
+        "is_correct": false,
+        "generated_code": "def remove_chars(first_string, second_string):\n    second_set = set(second_string)\n    result = ''.join(char for char in first_string if char not in second_set)\n    return result"
+      },
+      {
+        "task_id": 757,
+        "method": "cot",
+        "query": "Write a function to count the pairs of reverse strings in the given string list. https://www.geeksfo",
+        "prompt_length": 839,
+        "response_length": 206,
+        "code_length": 206,
+        "is_correct": true,
+        "generated_code": "def count_reverse_pairs(strings):\n    count = 0\n    seen = set()\n    for s in strings:\n        reversed_s = s[::-1]\n        if reversed_s in seen:\n            count += 1\n        seen.add(s)\n    return..."
+      },
+      {
+        "task_id": 267,
+        "method": "cot",
+        "query": "Write a python function that takes in an integer n and returns the sum of the squares of the first n",
+        "prompt_length": 796,
+        "response_length": 149,
+        "code_length": 149,
+        "is_correct": false,
+        "generated_code": "def sum_of_squares_of_odds(n):\n    if n <= 0:\n        return 0\n    total = 0\n    for i in range(1, 2 * n, 2):\n        total += i * i\n    return total"
+      },
+      {
+        "task_id": 249,
+        "method": "cot",
+        "query": "Write a function to find the intersection of two arrays.",
+        "prompt_length": 731,
+        "response_length": 104,
+        "code_length": 104,
+        "is_correct": false,
+        "generated_code": "def intersection(nums1, nums2):\n    set1 = set(nums1)\n    set2 = set(nums2)\n    return list(set1 & set2)"
+      },
+      {
+        "task_id": 235,
+        "method": "cot",
+        "query": "Write a python function to set all even bits of a given number.",
+        "prompt_length": 738,
+        "response_length": 242,
+        "code_length": 242,
+        "is_correct": false,
+        "generated_code": "def set_even_bits(n):\n    if n < 0:\n        return -1\n    result = n\n    bit_position = 0\n    while n > 0:\n        if bit_position % 2 == 0:\n            result |= (1 << bit_position)\n        n >>= 1\n ..."
+      },
+      {
+        "task_id": 123,
+        "method": "cot",
+        "query": "Write a function to sum all amicable numbers from 1 to a specified number.",
+        "prompt_length": 749,
+        "response_length": 538,
+        "code_length": 538,
+        "is_correct": false,
+        "generated_code": "def sum_amicable_numbers(n):\n    def sum_of_divisors(num):\n        if num == 1:\n            return 0\n        divisors_sum = 1\n        for i in range(2, int(num**0.5) + 1):\n            if num % i == 0:..."
+      },
+      {
+        "task_id": 755,
+        "method": "cot",
+        "query": "Write a function to find the second smallest number in a list.",
+        "prompt_length": 737,
+        "response_length": 226,
+        "code_length": 226,
+        "is_correct": false,
+        "generated_code": "def find_second_smallest(numbers):\n    if len(numbers) < 2:\n        return None\n    unique_numbers = list(set(numbers))\n    if len(unique_numbers) < 2:\n        return None\n    unique_numbers.sort()\n  ..."
+      },
+      {
+        "task_id": 98,
+        "method": "cot",
+        "query": "Write a function to multiply all the numbers in a list and divide with the length of the list.",
+        "prompt_length": 769,
+        "response_length": 167,
+        "code_length": 167,
+        "is_correct": false,
+        "generated_code": "def multiply_and_divide(numbers):\n    if not numbers:\n        return 0\n    product = 1\n    for num in numbers:\n        product *= num\n    return product / len(numbers)"
+      }
+    ]
+  },
+  "config": {
+    "dataset_path": "BMPP/sanitized-mbpp.json",
+    "training_data_path": "BMPP/mbpp.jsonl",
+    "max_samples": 10,
+    "methods_to_run": [
+      "acecoder",
+      "zero_shot",
+      "few_shot",
+      "cot"
+    ],
+    "use_real_llm": true,
+    "model_name": "deepseek-reasoner"
+  }
+}

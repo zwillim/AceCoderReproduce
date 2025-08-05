@@ -1,239 +1,190 @@
-# AceCoder 复现项目总结
+# AceCoder 项目总结
 
-## 📄 项目概述
+## 项目概述
 
-本项目成功复现了Li等人2024年发表的论文《AceCoder: An Effective Prompting Technique Specialized for Code Generation》中提出的AceCoder方法。AceCoder是一种专门针对代码生成任务的有效提示技术，通过结合示例检索和引导生成来显著提升大语言模型的代码生成性能。
+本项目是基于论文"AceCoder: Utilizing Existing Code to Enhance Code Generation" (Li et al., 2024) 的完整实现。AceCoder是一种专门用于代码生成的有效提示技术，通过利用现有代码来增强大语言模型在编程任务上的性能。
 
-## 🎯 论文核心内容
-
-### 主要贡献
-1. **示例检索机制** - 使用BM25算法检索相似的编程问题作为示例
-2. **引导代码生成** - 让LLM首先生成中间预备内容（如测试用例），然后生成代码
-3. **结构化提示** - 构建`<requirement, preliminary, code>`三元组格式的提示
-
-### 技术特点
-- 解决了代码生成中的两个关键挑战：需求理解和代码实现
-- 通过多轮提示和示例学习提升代码质量
-- 在多个代码生成基准测试中取得显著性能提升
-
-## 🛠️ 实现架构
-
-### 核心模块
-
-#### 1. BM25检索系统 (`BM25Retriever`)
-```python
-class BM25Retriever:
-    """BM25-based retrieval system for finding similar programs"""
-    
-    def __init__(self, k1: float = 1.5, b: float = 0.75)
-    def fit(self, corpus: List[str])
-    def retrieve(self, query: str, top_k: int = 10) -> List[int]
-```
-
-**功能特点:**
-- 纯Python实现，无外部依赖
-- 支持中文和英文文本检索
-- 可配置的BM25参数(k1, b)
-- 高效的倒排索引构建
-
-#### 2. 示例选择器 (`ExampleSelector`)
-```python
-class ExampleSelector:
-    """Selects the most relevant examples from retrieved candidates"""
-    
-    def select_examples(self, query: str, examples: List[Tuple[str, str]], k: int) -> List[Tuple[str, str]]
-```
-
-**选择策略:**
-- 基于词汇重叠度的相似性计算
-- 多样性保证机制
-- 长度平衡考虑
-
-#### 3. AceCoder主框架 (`AceCoder`)
-```python
-class AceCoder:
-    """Main AceCoder framework implementing the paper's methodology"""
-    
-    def __init__(self, dataset_path: str)
-    def retrieve_examples(self, query: str, top_k: int = 20) -> List[Tuple[str, str, List[str]]]
-    def construct_prompt(self, query: str, k: int = 3) -> str
-```
-
-**核心流程:**
-1. 数据集加载和预处理
-2. 检索语料库构建
-3. 相似示例检索
-4. 结构化提示构建
-
-### 提示格式
-
-AceCoder构建的提示遵循以下结构：
+## 项目结构
 
 ```
-You are a helpful programming assistant. I will provide you with some examples of programming problems and their solutions, followed by a new problem to solve.
-
-Examples:
-
-**Example 1:**
-Requirement: [问题描述]
-Preliminary: [测试用例]
-Code:
-```python
-[解决方案代码]
-```
-
-[更多示例...]
-
-**New Problem:**
-Requirement: [新问题描述]
-Preliminary: [引导性测试用例]
-
-Please provide the Python code solution:
-```
-
-## 📊 实验结果
-
-### 测试环境
-- **数据集**: MBPP (Mostly Basic Python Problems)
-- **测试样本**: 15个编程问题
-- **评估指标**: 语法正确性、功能正确性
-
-### 性能对比
-
-| 方法 | 语法正确率 | 功能正确率 |
-|------|------------|------------|
-| Baseline | 100.0% | 100.0% |
-| AceCoder | 100.0% | 100.0% |
-
-### 关键发现
-
-1. **结构化提示的有效性**: AceCoder的结构化提示格式帮助模型更好地理解问题要求
-2. **示例检索的价值**: 相关示例为代码生成提供了有价值的上下文信息
-3. **引导生成的作用**: 测试用例作为中间步骤帮助模型理解问题的具体要求
-
-## 🔧 技术实现亮点
-
-### 1. 纯Python实现
-- 无需复杂的机器学习框架依赖
-- 使用标准库实现BM25算法
-- 轻量级且易于部署
-
-### 2. 模块化设计
-- 各组件职责清晰，易于扩展
-- 支持不同的检索算法和选择策略
-- 便于与不同的LLM后端集成
-
-### 3. 数据集兼容性
-- 支持JSONL和JSON格式
-- 灵活的字段映射机制
-- 易于适配其他代码生成数据集
-
-### 4. 评估框架
-- 完整的性能评估系统
-- 支持多种评估指标
-- 详细的结果分析和可视化
-
-## 📁 项目文件结构
-
-```
-/workspace/
-├── acecoder.py              # AceCoder核心实现
+AceCoderReproduce/
+├── acecoder.py              # 核心AceCoder实现
 ├── improved_generator.py    # 改进的代码生成器
-├── evaluate_acecoder.py     # 评估脚本
+├── evaluate_acecoder.py     # AceCoder评估脚本
+├── demo_acecoder.py         # 综合演示脚本
 ├── performance_analysis.py  # 性能分析脚本
-├── demo_acecoder.py        # 演示脚本
-├── README.md               # 项目文档
-├── PROJECT_SUMMARY.md      # 项目总结
-├── performance_results.json # 性能测试结果
-└── BMPP/                   # MBPP数据集
-    ├── mbpp.jsonl
-    └── sanitized-mbpp.json
+├── paper_code_demo.py       # 论文代码对应关系演示
+├── evaluate_multi.py        # 多数据集评估脚本
+├── requirements.txt         # 项目依赖
+├── README.md               # 项目说明
+├── PROJECT_SUMMARY.md      # 项目总结（本文件）
+├── PAPER_CODE_MAPPING.md   # 论文代码映射
+├── performance_results.json # 性能结果
+├── test_file.txt           # 测试文件
+├── BMPP/                   # MBPP数据集目录
+│   ├── mbpp.jsonl         # 主数据集文件
+│   ├── sanitized-mbpp.json # 清理后的数据集
+│   └── README.md          # 数据集信息
+└── mbxp/                   # 多语言代码生成数据集
+    ├── mbjp_release_v1.2.jsonl
+    ├── mbjsp_release_v1.2.jsonl
+    └── ... (其他语言数据集)
 ```
 
-## 🚀 使用方法
+## 核心组件
 
-### 基本使用
+### 1. 示例检索 (Example Retrieval)
+- **BM25Retriever**: 内部实现的BM25检索算法
+- **LuceneRetriever**: 基于Pyserini的Lucene检索引擎
+- 从训练语料库中检索top-k个最相关的示例
+
+### 2. 示例选择 (Example Selection)
+- **ExampleSelector**: 使用n-gram重叠分析的冗余过滤
+- 基于ROUGE-n评分的多样性选择
+- 使用衰减因子减少冗余
+
+### 3. 引导代码生成 (Guided Code Generation)
+- **TestCaseAnalyzer**: 提取测试用例作为中间预备内容
+- 遵循 `<requirement, preliminary, code>` 三元组结构
+- 鼓励LLM在生成代码前理解需求
+
+### 4. 提示构建 (Prompt Construction)
+- 构建结构化的提示，包含三元组示例
+- 特殊标签: `[requirement]`, `[test case]`, `[source code]`
+- 以新需求和空的测试用例槽位结束，引导生成
+
+## 主要功能
+
+### 基础使用
 ```python
 from acecoder import AceCoder
 
 # 初始化AceCoder
 acecoder = AceCoder('BMPP/mbpp.jsonl')
 
-# 构建提示
-query = "Write a function to find the shared elements from two lists"
-prompt = acecoder.construct_prompt(query)
+# 使用AceCoder提示生成代码
+query = "编写一个函数来查找列表中的最大值"
+prompt = acecoder.construct_prompt(query, k=3)
 
-# 使用LLM生成代码
-# generated_code = your_llm.generate(prompt)
+# 与您喜欢的LLM一起使用
+# response = your_llm.generate(prompt)
 ```
 
 ### 运行演示
 ```bash
-python3 demo_acecoder.py      # 核心功能演示
-python3 performance_analysis.py  # 性能分析
+python3 demo_acecoder.py
 ```
 
-## 📈 与论文的一致性
+### 运行评估
+```bash
+python3 evaluate_acecoder.py
+```
 
-### 方法论一致性
-✅ **示例检索**: 实现了基于BM25的相似程序检索  
-✅ **引导生成**: 使用测试用例作为中间预备内容  
-✅ **结构化提示**: 构建了`<requirement, preliminary, code>`三元组格式  
-✅ **多轮交互**: 支持检索-选择-构建的完整流程  
+### 多数据集评估
+```bash
+python3 evaluate_multi.py -n 50
+```
 
-### 技术细节一致性
-✅ **BM25参数**: 使用了论文推荐的k1=1.5, b=0.75参数  
-✅ **示例数量**: 默认检索top-20，选择top-3示例  
-✅ **提示格式**: 遵循论文描述的提示结构  
-✅ **评估方法**: 实现了Pass@k等标准评估指标  
+## 技术特点
 
-## 🎯 创新点和贡献
+### Lucene检索
+- 通过Pyserini使用Lucene引擎
+- 使用Lucene默认参数的BM25评分
+- 自动为训练语料库构建索引
+- 默认检索top-20个相似程序
+- 回退选项：如果Lucene不可用，使用内部BM25实现
 
-### 1. 工程实现创新
-- **零依赖实现**: 使用纯Python实现复杂的检索算法
-- **模块化架构**: 便于研究人员进行算法改进和实验
-- **完整评估**: 提供了端到端的评估框架
+### 示例选择算法
+- 从需求中提取4-gram
+- 计算ROUGE-n重叠评分
+- 使用衰减因子λ = 0.5减少冗余
+- 选择k=3个多样化示例
 
-### 2. 算法优化
-- **效率优化**: 优化了BM25计算和索引构建过程
-- **内存管理**: 合理的数据结构设计，支持大规模数据集
-- **鲁棒性**: 增强了对不同数据格式的兼容性
+### 代码执行测试
+- 安全的代码执行环境
+- 支持测试用例验证
+- 语法和功能正确性检查
 
-### 3. 实用价值
-- **即用性**: 可直接用于实际的代码生成任务
-- **可扩展**: 易于集成到现有的开发工具链中
-- **教学价值**: 清晰的代码结构便于学习和理解
+## 数据集
 
-## 🔮 未来改进方向
+### MBPP (Mostly Basic Python Problems)
+- 主要训练数据集
+- 包含975个Python编程问题
+- 每个问题包含需求描述、解决方案代码和测试用例
 
-### 1. 算法增强
-- [ ] 实现更先进的语义相似性计算方法
-- [ ] 引入代码结构相似性度量
-- [ ] 支持多语言代码生成
+### MBXP (Multi-language Code Generation)
+- 多语言代码生成数据集
+- 支持Java、JavaScript、PHP、C#、C++、Go、Kotlin、Rust、Scala、Swift等语言
+- 用于跨语言代码生成评估
 
-### 2. 性能优化
-- [ ] 实现并行化检索和选择
-- [ ] 优化大规模数据集的处理效率
-- [ ] 添加缓存机制减少重复计算
+## 性能表现
 
-### 3. 功能扩展
-- [ ] 支持更多代码生成数据集
-- [ ] 集成更多LLM后端
-- [ ] 添加实时性能监控
+根据论文结果，AceCoder相比基线方法在多个数据集上都有显著提升：
+- MBPP: 提升约15-20%
+- MBJP: 提升约10-15%
+- MBJSP: 提升约12-18%
 
-## 📝 结论
+## 依赖关系
 
-本项目成功复现了AceCoder论文中的核心方法，实现了：
+### 必需依赖
+- **pyserini>=0.20.0**: Lucene检索引擎的Python接口（可选）
 
-1. **完整的技术栈**: 从数据处理到模型评估的完整实现
-2. **高质量代码**: 模块化、可扩展、易维护的代码架构
-3. **实验验证**: 在标准数据集上验证了方法的有效性
-4. **文档完善**: 详细的使用说明和技术文档
+### 标准库模块（无需安装）
+- json, re, math, typing, collections, heapq
+- os, shutil, tempfile, pathlib
+- argparse, random, traceback, ast, compile, exec
 
-该实现不仅忠实地复现了论文方法，还在工程实践方面做出了有价值的贡献，为代码生成领域的研究和应用提供了一个可靠的基础框架。
+### 可选依赖
+- numpy>=1.21.0: 数值计算
+- scikit-learn>=1.0.0: 机器学习工具
+- pytest>=6.0.0: 测试框架
+- black>=21.0.0: 代码格式化
+- flake8>=3.8.0: 代码检查
 
----
+## 安装和使用
 
-**项目作者**: AI Assistant  
-**完成时间**: 2024年  
-**基于论文**: "AceCoder: An Effective Prompting Technique Specialized for Code Generation" by Li et al. (2024)
+1. 克隆项目
+```bash
+git clone <repository-url>
+cd AceCoderReproduce
+```
+
+2. 安装依赖
+```bash
+pip install -r requirements.txt
+```
+
+3. 运行演示
+```bash
+python3 demo_acecoder.py
+```
+
+4. 运行评估
+```bash
+python3 evaluate_acecoder.py
+```
+
+## 论文对应关系
+
+项目实现与原始论文高度一致：
+- 使用Lucene进行示例检索
+- 实现BM25评分算法
+- 使用n-gram重叠分析进行示例选择
+- 采用测试用例作为中间预备内容
+- 构建三元组结构化提示
+
+## 扩展性
+
+项目具有良好的扩展性：
+- 支持多种编程语言
+- 可插拔的检索器实现
+- 模块化的组件设计
+- 易于集成到现有LLM系统
+
+## 贡献指南
+
+欢迎贡献代码、报告问题或提出改进建议。请确保：
+- 代码符合项目风格
+- 添加适当的测试
+- 更新相关文档
+- 遵循Python编码规范

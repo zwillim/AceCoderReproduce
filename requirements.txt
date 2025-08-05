@@ -1,0 +1,21 @@
+# AceCoder: An Effective Prompting Technique for Code Generation
+# Requirements for the AceCoder implementation based on Li et al. (2024)
+
+# Core dependencies
+pyserini>=0.20.0  # Lucene-based retrieval system (optional, with fallback to internal BM25)
+
+# Python version requirement
+# This project requires Python 3.7+ for typing support and f-strings
+
+# Note: The following are standard library modules and don't need to be installed:
+# - json, re, math, typing, collections, heapq, os, shutil, tempfile, pathlib
+# - argparse, random, traceback, ast, compile, exec
+
+# Optional: For better performance and additional features
+# numpy>=1.21.0  # For numerical operations (if needed for BM25 calculations)
+# scikit-learn>=1.0.0  # For additional ML utilities (if needed)
+
+# Development dependencies (optional)
+# pytest>=6.0.0  # For running tests
+# black>=21.0.0  # For code formatting
+# flake8>=3.8.0  # For linting 

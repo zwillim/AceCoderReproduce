@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 """
-Evaluation script for AceCoder on MBPP dataset
-MBPP数据集上的AceCoder评估脚本
+Flexible Evaluation Script for AceCoder with Configurable Methods
+支持配置方法的AceCoder灵活评估脚本
+
+This script allows you to configure which methods to run in the evaluation.
+Available methods: 'acecoder', 'zero_shot', 'few_shot', 'cot'
+
+这个脚本允许您配置在评估中运行哪些方法。
+可用方法: 'acecoder', 'zero_shot', 'few_shot', 'cot'
 """
 
 import json
@@ -145,9 +151,9 @@ def extract_code_from_response(response: str) -> str:
     return '\n'.join(code_lines).strip()
 
 
-def evaluate_acecoder():
-    """Evaluate AceCoder with configurable methods"""
-    """使用可配置方法评估AceCoder"""
+def flexible_evaluation():
+    """Run flexible evaluation with configurable methods"""
+    """运行支持配置方法的灵活评估"""
     
     # 验证配置
     if not config.validate():
@@ -180,13 +186,6 @@ def evaluate_acecoder():
     print("Loading test data...")
     print("正在加载测试数据...")
     test_data = load_test_data(config.dataset_path, max_samples=config.max_samples)
-    
-    if config.use_real_llm:
-        print("Using real LLM API for code generation")
-        print("使用真实LLM API进行代码生成")
-    else:
-        print("Using rule-based generator for code generation")
-        print("使用基于规则的生成器进行代码生成")
     
     print(f"Evaluating on {len(test_data)} test samples...")
     print(f"正在评估 {len(test_data)} 个测试样本...")
@@ -283,6 +282,26 @@ def print_evaluation_results(results: Dict[str, int], detailed_results: Dict[str
                         print(f"  vs {display_name:20s}: {improvement:+.1f}%")
                     else:
                         print(f"  vs {display_name:20s}: +∞% (baseline failed all tests)")
+    
+    # Statistical summary
+    print("\n" + "-" * 60)
+    print("STATISTICAL SUMMARY")
+    print("统计摘要")
+    print("-" * 60)
+    
+    for method_name, details in detailed_results.items():
+        if details:
+            avg_prompt_len = sum(d.get('prompt_length', 0) for d in details) / len(details)
+            avg_code_len = sum(d.get('code_length', 0) for d in details) / len(details)
+            
+            display_name = {
+                'acecoder': 'AceCoder',
+                'zero_shot': 'Zero-shot Prompting',
+                'few_shot': 'Few-shot Prompting',
+                'cot': 'Chain-of-Thought Prompting'
+            }.get(method_name, method_name)
+            
+            print(f"{display_name:25s}: Avg prompt {avg_prompt_len:.0f} chars, Avg code {avg_code_len:.0f} chars")
 
 
 def save_evaluation_results(results: Dict[str, int], detailed_results: Dict[str, List[Dict]], total_samples: int):
@@ -307,7 +326,7 @@ def save_evaluation_results(results: Dict[str, int], detailed_results: Dict[str,
         }
     }
     
-    output_file = 'evaluation_results.json'
+    output_file = 'flexible_evaluation_results.json'
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(output_data, f, indent=2, ensure_ascii=False)
     
@@ -324,11 +343,9 @@ def demo_acecoder():
     print("=" * 60)
     
     # Initialize AceCoder
-    # 初始化AceCoder
     acecoder = AceCoder('BMPP/mbpp.jsonl')
     
     # Example query
-    # 示例查询
     query = "Write a function to find the shared elements from the given two lists."
     
     print(f"Query: {query}")
@@ -337,17 +354,15 @@ def demo_acecoder():
     print("\n正在构建 AceCoder 提示...")
     
     # Construct prompt
-    # 构建提示
     prompt = acecoder.construct_prompt(query, k=3)
     
-    print("\nGenerated AceCoder Prompt:")
-    print("\n生成的 AceCoder 提示:")
+    print(f"\nGenerated AceCoder Prompt:")
+    print(f"\n生成的 AceCoder 提示:")
     print("-" * 40)
     print(prompt[:1000] + "..." if len(prompt) > 1000 else prompt)
     print("-" * 40)
     
-    # Show how the prompt would be used
-    # 展示如何使用提示
+    # Generate response (using rule-based generator for demo)
     generator = ImprovedCodeGenerator()
     response = generator.generate(prompt)
     
@@ -356,136 +371,43 @@ def demo_acecoder():
     print(response)
     
     # Test the generated code
-    # 测试生成的代码
-    test_cases = [
+    test_list = [
         "assert set(shared_elements([1, 2, 3, 4], [3, 4, 5, 6])) == set([3, 4])",
         "assert set(shared_elements([1, 2], [3, 4])) == set([])"
     ]
     
+    print(f"\nTesting generated code...")
+    print(f"\n正在测试生成的代码...")
+    
+    # Extract code
+    lines = response.split('\n')
+    code_lines = []
+    for line in lines:
+        if not line.strip().startswith('#'):
+            code_lines.append(line)
+    code = '\n'.join(code_lines).strip()
+    
+    # Test code
     try:
-        # Remove comments from response
-        # 从响应中移除注释
-        lines = response.split('\n')
-        code_lines = []
-        for line in lines:
-            if not line.strip().startswith('#'):
-                code_lines.append(line)
-        code = '\n'.join(code_lines).strip()
-        
-        print(f"\nTesting generated code...")
-        print(f"\n正在测试生成的代码...")
-        exec_globals = {}
-        exec(code, exec_globals)
-        
-        all_passed = True
-        for test in test_cases:
-            try:
-                exec(test, exec_globals)
-                print(f"  ✓ {test}")
-            except Exception as e:
-                print(f"  ✗ {test} - {e}")
-                all_passed = False
-        
-        if all_passed:
+        if acecoder.test_code(code, test_list):
+            print("  ✓ assert set(shared_elements([1, 2, 3, 4], [3, 4, 5, 6])) == set([3, 4])")
+            print("  ✓ assert set(shared_elements([1, 2], [3, 4])) == set([])")
             print("All tests passed!")
             print("所有测试通过!")
         else:
-            print("Some tests failed.")
-            print("部分测试失败。")
-            
+            print("Some tests failed!")
+            print("部分测试失败!")
     except Exception as e:
-        print(f"Code execution failed: {e}")
-        print(f"代码执行失败: {e}")
-
-
-if __name__ == "__main__":
-    # Set random seed for reproducibility
-    # 设置随机种子以确保可重现性
-    random.seed(42)
-    
-    print("AceCoder Evaluation Script")
-    print("AceCoder 评估脚本")
-    print("=" * 60)
-    
-    # =============================================================================
-    # 配置方式1: 使用配置函数（推荐）
-    # Configuration Method 1: Use configuration functions (recommended)
-    # =============================================================================
-    
-    # 取消注释下面的行来使用不同的配置
-    # Uncomment the lines below to use different configurations
-    
-    # 从 config_examples.py 导入配置函数
-    # from config_examples import example_rule_based, example_gpt35, example_gpt4
-    
-    # 选择你想要的配置：
-    # Choose the configuration you want:
-    
-    # example_rule_based()      # 规则生成器（免费，快速）
-    # example_gpt35()          # GPT-3.5-turbo（经济选择）
-    # example_gpt4()           # GPT-4（高质量选择）
-    
-    # =============================================================================
-    # 配置方式2: 直接在代码中配置
-    # Configuration Method 2: Configure directly in code
-    # =============================================================================
-    
-    # 示例1: 使用规则生成器（默认）
-    # Example 1: Use rule-based generator (default)
-    config.set_llm_config(
-        use_real_llm=True,  # 不使用真实LLM
-        api_key="sk-67a3bbb61aee4bd19e51f45bbac8205d",        # 不需要API密钥
-        model_name="deepseek-reasoner",
-        api_base="https://api.deepseek.com/v1"
-    )
-    config.set_evaluation_config(
-        max_samples=10,      # 评估10个样本
-        dataset_path="BMPP/sanitized-mbpp.json",
-        training_data_path="BMPP/mbpp.jsonl"
-    )
-    
-    # 示例2: 使用真实LLM API（取消注释下面的代码）
-    # Example 2: Use real LLM API (uncomment the code below)
-    # config.set_llm_config(
-    #     use_real_llm=True,                    # 使用真实LLM
-    #     api_key="sk-your-api-key-here",      # 你的OpenAI API密钥
-    #     model_name="gpt-4",                  # 使用GPT-4模型
-    #     api_base="https://api.openai.com/v1"
-    # )
-    # config.set_evaluation_config(
-    #     max_samples=5,                       # 评估5个样本（节省成本）
-    #     dataset_path="BMPP/sanitized-mbpp.json",
-    #     training_data_path="BMPP/mbpp.jsonl"
-    # )
-    # config.set_generator_config(
-    #     temperature=0.1,                     # 低温度，更确定性
-    #     max_tokens=1000                      # 最大1000个令牌
-    # )
-    
-    # 示例3: 使用自定义API端点（如Azure OpenAI）
-    # Example 3: Use custom API endpoint (like Azure OpenAI)
-    # config.set_llm_config(
-    #     use_real_llm=True,
-    #     api_key="your-azure-api-key",
-    #     model_name="gpt-4",
-    #     api_base="https://your-resource.openai.azure.com/openai/deployments/your-deployment"
-    # )
-    # config.set_evaluation_config(max_samples=3)
-    
-    # =============================================================================
-    # 运行演示
-    # Run demonstration
-    demo_acecoder()
-    
-    print("\n" + "=" * 60)
+        print(f"Error testing code: {e}")
+        print(f"测试代码时出错: {e}")
 
 
 if __name__ == "__main__":
     import argparse
     
-    parser = argparse.ArgumentParser(description="AceCoder evaluation with configurable methods")
+    parser = argparse.ArgumentParser(description="Flexible AceCoder evaluation with configurable methods")
     parser.add_argument("--demo", action="store_true", help="Run AceCoder demonstration")
-    parser.add_argument("--eval", action="store_true", help="Run evaluation")
+    parser.add_argument("--eval", action="store_true", help="Run flexible evaluation")
     parser.add_argument("--methods", nargs='+', choices=['acecoder', 'zero_shot', 'few_shot', 'cot'],
                        help="Override methods to run (e.g., --methods acecoder zero_shot)")
     
@@ -500,20 +422,9 @@ if __name__ == "__main__":
     if args.demo:
         demo_acecoder()
     elif args.eval:
-        try:
-            evaluate_acecoder()
-        except Exception as e:
-            print(f"Evaluation failed: {e}")
-            print(f"评估失败: {e}")
-            import traceback
-            traceback.print_exc()
+        flexible_evaluation()
     else:
-        # Default behavior - run both demo and evaluation
-        demo_acecoder()
-        try:
-            evaluate_acecoder()
-        except Exception as e:
-            print(f"Evaluation failed: {e}")
-            print(f"评估失败: {e}")
-            import traceback
-            traceback.print_exc()
+        print("Use --demo to see AceCoder demonstration or --eval to run evaluation")
+        print("使用 --demo 查看 AceCoder 演示或 --eval 运行评估")
+        print("Use --methods to specify which methods to run (e.g., --methods acecoder zero_shot)")
+        print("使用 --methods 指定运行哪些方法 (例如: --methods acecoder zero_shot)")

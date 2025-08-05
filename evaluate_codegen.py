@@ -7,11 +7,133 @@ MBPP数据集上的AceCoder评估脚本
 import json
 import random
 import os
+import glob
 from typing import List, Dict, Optional, Tuple
 from acecoder import AceCoder
 from improved_generator import ImprovedCodeGenerator
 from baseline_methods import BaselineMethodManager
 from config import config
+
+
+def load_split_sets_data(split_sets_dir: str = "split_sets") -> List[Dict]:
+    """Load all JSON files from split_sets directory"""
+    """从split_sets目录加载所有JSON文件"""
+    all_test_sets = []
+    
+    # Find all JSON files in split_sets directory
+    json_files = glob.glob(os.path.join(split_sets_dir, "*.json"))
+    
+    if not json_files:
+        print(f"警告: 在 {split_sets_dir} 目录中未找到JSON文件")
+        print(f"Warning: No JSON files found in {split_sets_dir} directory")
+        return []
+    
+    print(f"找到 {len(json_files)} 个测试集文件")
+    print(f"Found {len(json_files)} test set files")
+    
+    for json_file in sorted(json_files):
+        print(f"正在加载: {json_file}")
+        print(f"Loading: {json_file}")
+        
+        try:
+            with open(json_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            
+            # Extract test set name and data
+            test_set_name = data.get('name', os.path.basename(json_file))
+            test_data = data.get('data', [])
+            
+            # Process each item in the test set
+            processed_items = []
+            for item in test_data:
+                # Extract essential fields
+                flag = item.get('flag', 'test')  # Default to test if flag not present
+                content = item.get('content', {})
+                code = item.get('code', {})
+                
+                # Create a simplified representation for evaluation
+                processed_item = {
+                    'flag': flag,
+                    'content': content,
+                    'code': code,
+                    'task_name': item.get('task_name_old', ''),
+                    'tags': item.get('tags_old', []),
+                    'test_set_name': test_set_name,
+                    'source_file': json_file
+                }
+                
+                processed_items.append(processed_item)
+            
+            # Add to all test sets
+            all_test_sets.append({
+                'test_set_name': test_set_name,
+                'source_file': json_file,
+                'items': processed_items
+            })
+            
+            print(f"  加载了 {len(processed_items)} 个数据项")
+            print(f"  Loaded {len(processed_items)} data items")
+            
+        except Exception as e:
+            print(f"错误: 无法加载文件 {json_file}: {e}")
+            print(f"Error: Cannot load file {json_file}: {e}")
+            continue
+    
+    return all_test_sets
+
+
+def prepare_training_and_test_data(test_sets: List[Dict]) -> Tuple[List[Dict], List[Dict]]:
+    """Separate training and test data from all test sets"""
+    """从所有测试集中分离训练和测试数据"""
+    training_data = []
+    test_data = []
+    
+    for test_set in test_sets:
+        for item in test_set['items']:
+            if item['flag'] == 'train':
+                training_data.append(item)
+            elif item['flag'] == 'test':
+                test_data.append(item)
+    
+    print(f"训练数据: {len(training_data)} 个样本")
+    print(f"Training data: {len(training_data)} samples")
+    print(f"测试数据: {len(test_data)} 个样本")
+    print(f"Test data: {len(test_data)} samples")
+    
+    return training_data, test_data
+
+
+def create_evaluation_item(item: Dict) -> Dict:
+    """Convert a data item to evaluation format"""
+    """将数据项转换为评估格式"""
+    # Extract content description
+    content = item['content']
+    
+    # Create a description from content fields
+    description_parts = []
+    if 'src' in content:
+        for field_info in content['src']:
+            if isinstance(field_info, str):
+                # Extract field name and description
+                if '/' in field_info:
+                    field_name, description = field_info.split('/', 1)
+                    description_parts.append(f"{field_name}: {description}")
+                else:
+                    description_parts.append(field_info)
+    
+    description = "\n".join(description_parts)
+    
+    # Extract expected code
+    expected_code = item['code']
+    
+    return {
+        'prompt': description,
+        'code': expected_code,
+        'task_name': item['task_name'],
+        'tags': item['tags'],
+        'test_set_name': item['test_set_name'],
+        'source_file': item['source_file']
+    }
 
 
 def load_test_data(file_path: str, max_samples: int = 50) -> List[Dict]:
@@ -52,11 +174,12 @@ def evaluate_single_method(method_name: str, test_data: List[Dict],
     
     for i, item in enumerate(test_data):
         query = item.get('prompt', item.get('text', ''))
-        test_list = item.get('test_list', [])
-        task_id = item.get('task_id', i)
+        expected_code = item.get('code', {})
+        task_name = item.get('task_name', f'Task_{i}')
+        test_set_name = item.get('test_set_name', 'Unknown')
         
-        print(f"\nTest {i+1}/{len(test_data)} (Task {task_id}): {query[:50]}...")
-        print(f"测试 {i+1}/{len(test_data)} (任务 {task_id}): {query[:50]}...")
+        print(f"\nTest {i+1}/{len(test_data)} ({test_set_name} - {task_name}): {query[:50]}...")
+        print(f"测试 {i+1}/{len(test_data)} ({test_set_name} - {task_name}): {query[:50]}...")
         
         try:
             # Generate prompt based on method
@@ -96,47 +219,53 @@ def evaluate_single_method(method_name: str, test_data: List[Dict],
             else:
                 raise ValueError(f"Unknown method: {method_name}")
             
-            # Test the generated code
-            is_correct = acecoder.test_code(code, test_list)
+            # For now, we'll use a simple comparison approach
+            # In a real implementation, you might want to use more sophisticated code comparison
+            is_correct = False
+            if code and expected_code:
+                # Simple string comparison for now
+                # You might want to implement more sophisticated code comparison
+                is_correct = str(code).strip() == str(expected_code).strip()
             
             if is_correct:
                 correct += 1
-                print(f"  ✓ {method_name}: PASS")
-                print(f"  ✓ {method_name}: 通过")
+                print(f"  ✓ 正确 (Correct)")
             else:
-                print(f"  ✗ {method_name}: FAIL")
-                print(f"  ✗ {method_name}: 失败")
-                print(f"    Generated: {code[:100]}...")
-                print(f"    生成的代码: {code[:100]}...")
+                print(f"  ✗ 错误 (Incorrect)")
             
             detailed_results.append({
-                'task_id': task_id,
-                'method': method_name,
-                'query': query[:100],
-                'prompt_length': len(prompt),
-                'response_length': len(response),
-                'code_length': len(code),
+                'task_name': task_name,
+                'test_set_name': test_set_name,
+                'query': query,
+                'generated_code': code,
+                'expected_code': expected_code,
                 'is_correct': is_correct,
-                'generated_code': code[:200] + '...' if len(code) > 200 else code
+                'method': method_name
             })
             
         except Exception as e:
-            print(f"  ✗ {method_name}: ERROR - {e}")
-            print(f"  ✗ {method_name}: 错误 - {e}")
+            print(f"  ✗ 错误: {e}")
+            print(f"  ✗ Error: {e}")
             detailed_results.append({
-                'task_id': task_id,
+                'task_name': task_name,
+                'test_set_name': test_set_name,
+                'query': query,
+                'generated_code': '',
+                'expected_code': expected_code,
+                'is_correct': False,
                 'method': method_name,
-                'query': query[:100],
-                'error': str(e),
-                'is_correct': False
+                'error': str(e)
             })
     
     return correct, detailed_results
 
 
 def extract_code_from_response(response: str) -> str:
-    """Extract code from baseline method response"""
-    """从基线方法响应中提取代码"""
+    """Extract code from LLM response"""
+    """从LLM响应中提取代码"""
+    if '[source code]' in response:
+        return response.split('[source code]')[-1].strip()
+    
     lines = response.split('\n')
     code_lines = []
     for line in lines:
@@ -171,15 +300,41 @@ def evaluate_acecoder():
     print("Initializing evaluation components...")
     print("正在初始化评估组件...")
     
-    # Initialize components
-    acecoder = AceCoder(config.training_data_path)
-    generator = ImprovedCodeGenerator()
-    baseline_manager = BaselineMethodManager(config.training_data_path)
+    # Load split sets data
+    print("Loading split sets data...")
+    print("正在加载split sets数据...")
+    test_sets = load_split_sets_data()
     
-    # Load test data
-    print("Loading test data...")
-    print("正在加载测试数据...")
-    test_data = load_test_data(config.dataset_path, max_samples=config.max_samples)
+    if not test_sets:
+        print("No test sets found. Falling back to original MBPP dataset.")
+        print("未找到测试集。回退到原始MBPP数据集。")
+        
+        # Fallback to original method
+        acecoder = AceCoder(config.training_data_path)
+        generator = ImprovedCodeGenerator()
+        baseline_manager = BaselineMethodManager(config.training_data_path)
+        
+        # Load test data
+        print("Loading test data...")
+        print("正在加载测试数据...")
+        test_data = load_test_data(config.dataset_path, max_samples=config.max_samples)
+    else:
+        # Prepare training and test data from split sets
+        training_data, test_data_raw = prepare_training_and_test_data(test_sets)
+        
+        # Convert to evaluation format
+        test_data = [create_evaluation_item(item) for item in test_data_raw]
+        
+        # Limit test samples if configured
+        if len(test_data) > config.max_samples:
+            test_data = random.sample(test_data, config.max_samples)
+        
+        # Initialize components with training data
+        # Note: We'll need to modify AceCoder to accept training data directly
+        # For now, we'll use the original approach
+        acecoder = AceCoder(config.training_data_path)
+        generator = ImprovedCodeGenerator()
+        baseline_manager = BaselineMethodManager(config.training_data_path)
     
     if config.use_real_llm:
         print("Using real LLM API for code generation")
@@ -399,6 +554,20 @@ def demo_acecoder():
 
 
 if __name__ == "__main__":
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="AceCoder evaluation with configurable methods")
+    parser.add_argument("--demo", action="store_true", help="Run AceCoder demonstration")
+    parser.add_argument("--eval", action="store_true", help="Run evaluation")
+    parser.add_argument("--methods", nargs='+', choices=['acecoder', 'zero_shot', 'few_shot', 'cot'],
+                       help="Override methods to run (e.g., --methods acecoder zero_shot)")
+    parser.add_argument("--split-sets", action="store_true", 
+                       help="Use split_sets directory for evaluation (default)")
+    parser.add_argument("--mbpp", action="store_true", 
+                       help="Use original MBPP dataset for evaluation")
+    
+    args = parser.parse_args()
+    
     # Set random seed for reproducibility
     # 设置随机种子以确保可重现性
     random.seed(42)
@@ -472,30 +641,22 @@ if __name__ == "__main__":
     # )
     # config.set_evaluation_config(max_samples=3)
     
-    # =============================================================================
-    # 运行演示
-    # Run demonstration
-    demo_acecoder()
-    
-    print("\n" + "=" * 60)
-
-
-if __name__ == "__main__":
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="AceCoder evaluation with configurable methods")
-    parser.add_argument("--demo", action="store_true", help="Run AceCoder demonstration")
-    parser.add_argument("--eval", action="store_true", help="Run evaluation")
-    parser.add_argument("--methods", nargs='+', choices=['acecoder', 'zero_shot', 'few_shot', 'cot'],
-                       help="Override methods to run (e.g., --methods acecoder zero_shot)")
-    
-    args = parser.parse_args()
-    
     # Override methods if specified
     if args.methods:
         config.methods_to_run = args.methods
         print(f"Overriding methods to run: {args.methods}")
         print(f"覆盖运行方法: {args.methods}")
+    
+    # Determine evaluation mode
+    if args.mbpp:
+        print("Using MBPP dataset for evaluation")
+        print("使用MBPP数据集进行评估")
+        # Force use of original MBPP dataset
+        config.dataset_path = "BMPP/sanitized-mbpp.json"
+        config.training_data_path = "BMPP/mbpp.jsonl"
+    else:
+        print("Using split_sets directory for evaluation (default)")
+        print("使用split_sets目录进行评估（默认）")
     
     if args.demo:
         demo_acecoder()
